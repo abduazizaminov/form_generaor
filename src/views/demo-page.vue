@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { FormGenerator } from "@/components/form-generator";
 import { consoleLog, MessageLogType } from "@/shared/lib";
 import { formFields1, formFields2, formFields3 } from "@/shared/constants";
@@ -19,39 +19,59 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 const id = computed(() => Number(route.params.id));
+
 const title = ref("");
+
 const selectedFields = computed(() => {
-  if (id.value === 1) {
-    title.value = "Регистрация";
-    return formFields1;
-  } else if (id.value === 2) {
-    title.value = "Отправить сообщение";
-    return formFields2;
-  } else {
-    title.value = "Заказать товар";
-    return formFields3;
+  switch (id.value) {
+    case 1:
+      return formFields1;
+    case 2:
+      return formFields2;
+    case 3:
+      return formFields3;
+    default:
+      return {};
   }
 });
 
-const formValues = ref({
+watchEffect(() => {
+  switch (id.value) {
+    case 1:
+      title.value = "Регистрация";
+      break;
+    case 2:
+      title.value = "Отправить сообщение";
+      break;
+    case 3:
+      title.value = "Заказать товар";
+      break;
+    default:
+      title.value = "Форма";
+  }
+});
+
+interface FormValues {
+  name: string;
+  email: string;
+  gender: string;
+  agree: boolean;
+}
+
+const formValues = ref<FormValues>({
   name: "",
   email: "",
   gender: "",
   agree: false,
 });
 
-const saveForm = (data: any) => {
+const saveForm = (data: FormValues) => {
   consoleLog("Успешно!", MessageLogType.Success);
   console.log(data);
 };
 
 const cancelForm = () => {
   consoleLog("Отмена", MessageLogType.Error);
-  formValues.value = {
-    name: "",
-    email: "",
-    gender: "",
-    agree: false,
-  };
+  formValues.value = { name: "", email: "", gender: "", agree: false };
 };
 </script>
